@@ -1,14 +1,16 @@
-server:
-  port: 9095
-
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/sampledb
+    url: jdbc:postgresql://db:5432/sampledb
     username: postgres
-    password: root
+    password: postgres
     driver-class-name: org.postgresql.Driver
-
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+server:
+  port: 9095

@@ -1,14 +1,27 @@
 services:
-  app:
-    build: .
-    ports:
-      - "8080:8080"
-    depends_on:
-      - db
-
   db:
     image: postgres:15
+    container_name: sample-java-db
     environment:
       POSTGRES_DB: sampledb
-      POSTGRES_USER: sample
-      POSTGRES_PASSWORD: sample
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: sample-java-app
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "9095:9095"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/sampledb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
