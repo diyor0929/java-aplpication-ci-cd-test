@@ -6,11 +6,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class HelloController {
 
+    // Root endpoint
     @GetMapping("/")
     public String hello() {
-        return "Hello CI/CD";
+        return "Hello CI/CD"; // Toza text, emoji olib tashlandi
     }
 
+    // Health check endpoint
     @GetMapping("/health")
     public String health() {
         return "OK";
