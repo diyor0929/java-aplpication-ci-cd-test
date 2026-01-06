@@ -2,21 +2,13 @@ server:
   port: 9095
 
 spring:
-  application:
-    name: sample-java-ci-cd
-
   datasource:
-    url: jdbc:postgresql://db:5432/sampledb
-    username: sample
-    password: sample
+    url: jdbc:postgresql://localhost:5432/sampledb
+    username: postgres
+    password: root
+    driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health
