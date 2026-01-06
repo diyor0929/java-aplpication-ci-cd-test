@@ -12,6 +12,8 @@ services:
       test: ["CMD", "pg_isready", "-U", "postgres"]
       interval: 5s
       retries: 5
+    volumes:
+      - pg-data:/var/lib/postgresql/data
 
   app:
     build: .
@@ -25,13 +27,20 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/sampledb
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
+      MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: prometheus
+    volumes:
+      - ./src:/app/src
+      - ./logs:/app/logs
 
   prometheus:
     image: prom/prometheus
     container_name: prometheus
     volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     ports:
       - "9090:9090"
     depends_on:
       - app
+
+volumes:
+  pg-data:
