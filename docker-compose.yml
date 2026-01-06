@@ -25,3 +25,10 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/sampledb
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
+
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
