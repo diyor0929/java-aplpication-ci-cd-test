@@ -8,11 +8,7 @@ public class HelloController {
 
     @GetMapping("/")
     public String hello() {
-<<<<<<< HEAD
-        return "Hello CI/CD";
-=======
-        return "Hello CI/CD";
->>>>>>> 7679cedc6e505fae07ee832005d6803ba6ffab96
+        return "Hello CI/CD"; // Emoji olib tashlandi
     }
 
     @GetMapping("/health")
