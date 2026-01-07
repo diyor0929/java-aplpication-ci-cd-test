@@ -15,24 +15,23 @@ spring:
 server:
   port: 9095
 
-# Logs konfiguratsiyasi
 logging:
   level:
     root: INFO
     com.example: DEBUG
   file:
     name: /app/logs/app.log
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
 
-# Actuator endpoints va Prometheus
 management:
   endpoints:
     web:
       exposure:
-        include: health, info, metrics, prometheus
+        include: health,info,prometheus
+
+  endpoint:
     prometheus:
       enabled: true
+
   metrics:
     enable:
       all: true
