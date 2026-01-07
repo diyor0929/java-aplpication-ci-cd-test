@@ -1,37 +1,35 @@
 services:
-  db:
+  # PostgreSQL Database
+  sample-java-db:
     image: postgres:15
     container_name: sample-java-db
     environment:
-      POSTGRES_DB: sampledb
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: sampledb
     ports:
       - "5432:5432"
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "postgres"]
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
       retries: 5
-    volumes:
-      - pg-data:/var/lib/postgresql/data
 
-  app:
-    build: .
+  # Java Spring Boot App
+  sample-java-app:
+    image: java-app-app
     container_name: sample-java-app
     depends_on:
-      db:
-        condition: service_healthy
+      - sample-java-db
     ports:
       - "9095:9095"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/sampledb
+      SPRING_DATASOURCE_URL: jdbc:postgresql://sample-java-db:5432/sampledb
       SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
-      MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: prometheus
-    volumes:
-      - ./src:/app/src
-      - ./logs:/app/logs
+      SPRING_DATASOURCE_PASSWORD: root
+      MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: "*"
+      MANAGEMENT_ENDPOINT_PROMETHEUS_ENABLED: "true"
 
+  # Prometheus
   prometheus:
     image: prom/prometheus
     container_name: prometheus
@@ -40,7 +38,16 @@ services:
     ports:
       - "9091:9090"
     depends_on:
-      - app
+      - sample-java-app
 
-volumes:
-  pg-data:
+  # Grafana
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    depends_on:
+      - prometheus
