@@ -1,5 +1,4 @@
 services:
-  # PostgreSQL Database
   sample-java-db:
     image: postgres:15
     container_name: sample-java-db
@@ -12,14 +11,14 @@ services:
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
-      retries: 5
+      retries: 10
 
-  # Java Spring Boot App
   sample-java-app:
-    image: java-app-app
+    build: .
     container_name: sample-java-app
     depends_on:
-      - sample-java-db
+      sample-java-db:
+        condition: service_healthy
     ports:
       - "9095:9095"
     environment:
@@ -29,7 +28,6 @@ services:
       MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: "*"
       MANAGEMENT_ENDPOINT_PROMETHEUS_ENABLED: "true"
 
-  # Prometheus
   prometheus:
     image: prom/prometheus
     container_name: prometheus
@@ -40,7 +38,6 @@ services:
     depends_on:
       - sample-java-app
 
-  # Grafana
   grafana:
     image: grafana/grafana
     container_name: grafana
