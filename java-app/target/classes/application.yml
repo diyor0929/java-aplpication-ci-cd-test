@@ -1,22 +1,37 @@
-server:
-  port: 8080
-
 spring:
-  application:
-    name: sample-java-ci-cd
-
   datasource:
     url: jdbc:postgresql://db:5432/sampledb
-    username: sample
-    password: sample
-
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+server:
+  port: 9095
+
+logging:
+  level:
+    root: INFO
+    com.example: DEBUG
+  file:
+    name: /app/logs/app.log
 
 management:
   endpoints:
     web:
       exposure:
-        include: health
+        include: health,info,prometheus
+
+  endpoint:
+    prometheus:
+      enabled: true
+
+  metrics:
+    enable:
+      all: true
