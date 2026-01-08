@@ -1,59 +1,53 @@
-FROM php:8.4-fpm-alpine AS builder
+# Stage 1: Build Dependencies
+FROM php:8.4.1-fpm-alpine as build
 
+# Install system dependencies and PHP extensions
 RUN apk add --no-cache \
     git \
     unzip \
-    libpq-dev \
+    curl \
+    libzip-dev \
     oniguruma-dev \
-    icu-dev
+    postgresql-dev \
+    bash \
+    && docker-php-ext-install pdo pdo_pgsql zip
 
-RUN docker-php-ext-install \
-    pdo \
-    pdo_pgsql \
-    mbstring \
-    intl
+# Install Composer
+COPY --from=composer:2.7 /usr/bin/composer /usr/bin/composer
 
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+# Set working directory
+WORKDIR /var/www/html
 
-WORKDIR /var/www
-
-# 🔥 FAQAT composer fayllar
-COPY composer.json composer.lock ./
-
-# 🔥 TOZA PROD INSTALL
-RUN composer install \
-    --no-dev \
-    --no-scripts \
-    --no-interaction \
-    --prefer-dist
-
-# 🔥 KEYIN LARAVEL KOD
+# Copy app files and install dependencies
 COPY . .
+RUN composer install --no-dev --optimize-autoloader
 
-# 🔥 SCRIPT’LARNI ENDI ISHLATAMIZ
-RUN composer dump-autoload --optimize \
- && php artisan package:discover --ansi
+# Stage 2: Runtime Environment
+FROM php:8.4.1-fpm-alpine
 
-
-############################
-# Runtime
-############################
-FROM php:8.4-fpm-alpine
-
+# Install required PHP extensions
 RUN apk add --no-cache \
-    libpq \
+    libzip-dev \
     oniguruma \
-    icu
+    postgresql-dev \
+    bash \
+    && docker-php-ext-install pdo pdo_pgsql zip
 
-WORKDIR /var/www
+# Set working directory
+WORKDIR /var/www/html
 
-COPY --from=builder /usr/local/lib/php/extensions /usr/local/lib/php/extensions
-COPY --from=builder /usr/local/etc/php/conf.d /usr/local/etc/php/conf.d
-COPY --from=builder /var/www /var/www
+# Copy files from the build stage
+COPY --from=build /var/www/html /var/www/html
 
-RUN chown -R www-data:www-data /var/www \
- && chmod -R 775 storage bootstrap/cache
+# Copy entrypoint script (optional)
+# COPY docker/entrypoint.sh /entrypoint.sh
+# RUN chmod +x /entrypoint.sh
 
-USER www-data
+# Set correct permissions
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html/storage
+
+# Expose port (for php-fpm)
+EXPOSE 9000
 
 CMD ["php-fpm"]

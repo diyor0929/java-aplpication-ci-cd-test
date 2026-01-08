@@ -14,7 +14,7 @@ services:
       - laravel
 
   web:
-    image: registry.digitalocean.com/my-container-registry123/mylaravelapp:1.0.0
+    image: registry.digitalocean.com/my-registry123/mylaravelapp:1.0.0
     command: >
       sh -c "php artisan migrate --force && php artisan optimize && php-fpm"
     env_file:
@@ -29,7 +29,7 @@ services:
       - db
 
   worker:
-    image: registry.digitalocean.com/my-container-registry123/mylaravelapp:1.0.0
+    image: registry.digitalocean.com/my-registry123/mylaravelapp:1.0.0
     command: >
       sh -c "php artisan queue:work"
     env_file:
