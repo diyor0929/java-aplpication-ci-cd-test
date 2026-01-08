@@ -1,2 +1,5 @@
 job = input("what is your job ")
-print ("he is " + job)
+job= job.strip()
+job = job.title()
+print (f"he is {job}")
+    
