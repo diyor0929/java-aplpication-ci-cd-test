@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Build app
     outputs:
-      image_name: registry.digitalocean.com/my-registry123/my-laravel-app:${{ github.sha }}
+      image_name: registry.digitalocean.com/my-container-registry123/my-laravel-app:${{ github.sha }}
     steps:
       - uses: actions/checkout@v4
 
@@ -24,9 +24,9 @@ jobs:
       - name: Build and push docker image
         run: |
           cd my-laravel-app
-          docker build -t registry.digitalocean.com/my-registry123/my-laravel-app:${{ github.sha }} -f Dockerfile .
+          docker build -t registry.digitalocean.com/my-container-registry123/my-laravel-app:${{ github.sha }} -f Dockerfile .
           docker login registry.digitalocean.com -u dockeruser -p ${{ secrets.REGISTRY_TOKEN }}
-          docker push registry.digitalocean.com/my-registry123/my-laravel-app:${{ github.sha }}
+          docker push registry.digitalocean.com/my-container-registry123/my-laravel-app:${{ github.sha }}
 
   deploy:
     runs-on: ubuntu-latest
