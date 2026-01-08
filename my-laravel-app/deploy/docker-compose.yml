@@ -1,0 +1,70 @@
+services:
+  nginx:
+    image: nginx:alpine
+    depends_on:
+      - web
+    volumes:
+      - laravel-public:/var/www/html/public:ro
+      - laravel-storage:/var/www/html/storage
+      - laravel-cache:/var/www/html/bootstrap/cache
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "80:80"
+    networks:
+      - laravel
+
+  web:
+    image: registry.digitalocean.com/my-container-registry123/mylaravelapp:1.0.0
+    command: >
+      sh -c "php artisan migrate --force && php artisan optimize && php-fpm"
+    env_file:
+      - .env
+    volumes:
+      - laravel-public:/var/www/html/public:ro
+      - laravel-storage:/var/www/html/storage
+      - laravel-cache:/var/www/html/bootstrap/cache
+    networks:
+      - laravel
+    depends_on:
+      - db
+
+  worker:
+    image: registry.digitalocean.com/my-container-registry123/mylaravelapp:1.0.0
+    command: >
+      sh -c "php artisan queue:work"
+    env_file:
+      - .env
+    volumes:
+      - laravel-public:/var/www/html/public:ro
+      - laravel-storage:/var/www/html/storage
+      - laravel-cache:/var/www/html/bootstrap/cache
+    networks:
+      - laravel
+    depends_on:
+      - db
+
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: laravel
+      POSTGRES_USER: laravel
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - laravel
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U laravel -d laravel" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  laravel-public:
+  laravel-storage:
+  laravel-cache:
+  pgdata:
+
+networks:
+  laravel:
+    driver: bridge

@@ -6,7 +6,7 @@ on:
       - "main"
     paths:
       - 'my-laravel-app/**'
-      - '.github/workflows/my-laravel-app-build-and-deploy.yml'
+      - '.github/workflows/laravel-cicd.yml'
   workflow_dispatch:
 
 jobs:
@@ -44,13 +44,13 @@ jobs:
 
       - name: Copy files via SCP
         run: |
-          scp -P ${{ secrets.SSH_REMOTE_PORT || '22' }} -r ./my-laravel-app/deploy/* ${{ secrets.SSH_REMOTE_USER }}@${{ secrets.SSH_REMOTE_HOST }}:/opt/my-laravel-app/
+          scp -P ${{ secrets.SSH_REMOTE_PORT || '22' }} -r ./deploy/* ${{ secrets.SSH_REMOTE_USER }}@${{ secrets.SSH_REMOTE_HOST }}:/opt/my-laravel-app/
 
       - name: Restart remote app
         run: |
           ssh -p ${{ secrets.SSH_REMOTE_PORT || '22' }} ${{ secrets.SSH_REMOTE_USER }}@${{ secrets.SSH_REMOTE_HOST }} << 'EOF'
             cd /opt/my-laravel-app/
-            yq -i '.services.web.image = "${{ needs.build.outputs.image_name }}"' docker-compose.yaml
-            yq -i '.services.worker.image = "${{ needs.build.outputs.image_name }}"' docker-compose.yaml
+            yq -i '.services.web.image = "${{ needs.build.outputs.image_name }}"' docker-compose.yml
+            yq -i '.services.worker.image = "${{ needs.build.outputs.image_name }}"' docker-compose.yml
             docker compose up -d --remove-orphans
           EOF
