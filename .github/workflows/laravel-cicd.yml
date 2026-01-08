@@ -1,4 +1,4 @@
-name: "[My laravel js app] Build and deploy"
+name: "[My laraveljs app] Build and deploy"
 
 on:
   push:
